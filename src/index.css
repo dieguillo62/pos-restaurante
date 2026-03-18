@@ -1,0 +1,251 @@
+:root {
+  --bg-app:       #0d0d1a;
+  --bg-sidebar:   #13131f;
+  --bg-surface:   #1a1a2e;
+  --bg-card:      #1f1f35;
+  --bg-input:     #252540;
+
+  --accent:       #f97316;
+  --accent-hover: #ea6c0a;
+  --accent-light: rgba(249, 115, 22, 0.15);
+
+  --success:   #22c55e;
+  --warning:   #f59e0b;
+  --danger:    #ef4444;
+  --info:      #3b82f6;
+
+  --text-primary:   #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted:     #4a5568;
+
+  --border:       rgba(255, 255, 255, 0.08);
+  --border-focus: rgba(249, 115, 22, 0.5);
+
+  --sidebar-w: 88px;
+  --topbar-h:  56px;
+  --radius:    12px;
+  --radius-sm: 8px;
+  --touch-min: 56px;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+  background: var(--bg-app);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.app-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0;
+  gap: 4px;
+  z-index: 100;
+}
+
+.sidebar-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 8px 16px;
+  border-bottom: 1px solid var(--border);
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.sidebar-logo-icon { font-size: 28px; line-height: 1; }
+.sidebar-logo-text {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  width: 100%;
+  padding: 0 8px;
+}
+
+.nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  min-height: var(--touch-min);
+  padding: 8px 4px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  position: relative;
+}
+
+.nav-btn:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+
+.nav-btn.active {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.nav-btn.active::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: var(--accent);
+  border-radius: 0 3px 3px 0;
+}
+
+.nav-icon  { font-size: 20px; line-height: 1; }
+.nav-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+
+.sidebar-caja-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 8px;
+  border-top: 1px solid var(--border);
+  width: 100%;
+}
+
+.caja-dot { width: 8px; height: 8px; border-radius: 50%; display: block; }
+.caja-dot.abierta { background: var(--success); box-shadow: 0 0 6px var(--success); }
+.caja-dot.cerrada  { background: var(--danger);  box-shadow: 0 0 6px var(--danger);  }
+
+.caja-texto {
+  font-size: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+/* ── Main wrapper ────────────────────────────────────────────────────────── */
+.main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.top-bar {
+  height: var(--topbar-h);
+  min-height: var(--topbar-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  z-index: 50;
+}
+
+.top-bar-title  { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+.top-bar-fecha  { font-size: 12px; color: var(--text-secondary); text-transform: capitalize; }
+
+.main-content {
+  flex: 1;
+  overflow: hidden;
+  background: var(--bg-app);
+  position: relative;
+}
+
+/* ── Placeholder ─────────────────────────────────────────────────────────── */
+.placeholder-view {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 24px;
+}
+
+.placeholder-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 48px 64px;
+  text-align: center;
+  box-shadow: var(--shadow-md);
+}
+
+.placeholder-icon  { font-size: 56px; line-height: 1; filter: grayscale(0.3); }
+.placeholder-title { font-size: 22px; font-weight: 700; color: var(--text-primary); }
+.placeholder-desc  { font-size: 13px; color: var(--text-secondary); max-width: 260px; }
+
+.placeholder-badge {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 6px 16px;
+  background: var(--accent-light);
+  color: var(--accent);
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+
+/* ── Utilidades ──────────────────────────────────────────────────────────── */
+.text-success { color: var(--success); }
+.text-warning { color: var(--warning); }
+.text-danger  { color: var(--danger);  }
+.text-muted   { color: var(--text-secondary); }
