@@ -138,9 +138,9 @@ function runMigrations(db) {
     const insCategoria = db.prepare(
       'INSERT OR IGNORE INTO categorias (id, nombre, orden, color) VALUES (?, ?, ?, ?)'
     )
-    insCategoria.run(1, 'Platos',   1, '#f97316')
-    insCategoria.run(2, 'Bebidas',  2, '#3b82f6')
-    insCategoria.run(3, 'Postres',  3, '#ec4899')
+    insCategoria.run(1, 'Platos', 1, '#f97316')
+    insCategoria.run(2, 'Bebidas', 2, '#3b82f6')
+    insCategoria.run(3, 'Postres', 3, '#ec4899')
     insCategoria.run(4, 'Entradas', 4, '#10b981')
 
     // ── Productos demo ────────────────────────────────────────────────────
@@ -151,58 +151,58 @@ function runMigrations(db) {
     `)
 
     // Platos (categoria_id = 1)
-    insProd.run(1,  'Bandeja Paisa',       22000, 1, 0)
-    insProd.run(2,  'Sancocho de Gallina', 18000, 1, 0)
-    insProd.run(3,  'Sobrebarriga',        20000, 1, 0)
-    insProd.run(4,  'Arroz con Pollo',     16000, 1, 0)
-    insProd.run(5,  'Chuleta Valluna',     24000, 1, 0)
-    insProd.run(6,  'Frijolada',           14000, 1, 0)
+    insProd.run(1, 'Bandeja Paisa', 22000, 1, 0)
+    insProd.run(2, 'Sancocho de Gallina', 18000, 1, 0)
+    insProd.run(3, 'Sobrebarriga', 20000, 1, 0)
+    insProd.run(4, 'Arroz con Pollo', 16000, 1, 0)
+    insProd.run(5, 'Chuleta Valluna', 24000, 1, 0)
+    insProd.run(6, 'Frijolada', 14000, 1, 0)
 
     // Bebidas (categoria_id = 2) — gestiona_stock = 1
-    insProd.run(7,  'Gaseosa',              3500, 2, 1)
-    insProd.run(8,  'Agua Cristal',         2500, 2, 1)
-    insProd.run(9,  'Cerveza Club Colombia', 5000, 2, 1)
-    insProd.run(10, 'Jugo Natural',          6000, 2, 1)
-    insProd.run(11, 'Limonada de Coco',      7000, 2, 1)
-    insProd.run(12, 'Pony Malta',            4000, 2, 1)
+    insProd.run(7, 'Gaseosa', 3500, 2, 1)
+    insProd.run(8, 'Agua Cristal', 2500, 2, 1)
+    insProd.run(9, 'Cerveza Club Colombia', 5000, 2, 1)
+    insProd.run(10, 'Jugo Natural', 6000, 2, 1)
+    insProd.run(11, 'Limonada de Coco', 7000, 2, 1)
+    insProd.run(12, 'Pony Malta', 4000, 2, 1)
 
     // Postres (categoria_id = 3)
-    insProd.run(13, 'Flan de Caramelo',   5000, 3, 0)
-    insProd.run(14, 'Arroz con Leche',    4500, 3, 0)
+    insProd.run(13, 'Flan de Caramelo', 5000, 3, 0)
+    insProd.run(14, 'Arroz con Leche', 4500, 3, 0)
     insProd.run(15, 'Torta de Chocolate', 6000, 3, 0)
-    insProd.run(16, 'Tres Leches',        5500, 3, 0)
+    insProd.run(16, 'Tres Leches', 5500, 3, 0)
 
     // Entradas (categoria_id = 4)
-    insProd.run(17, 'Patacones',          5000, 4, 0)
-    insProd.run(18, 'Empanadas (3 und)',  6000, 4, 0)
-    insProd.run(19, 'Chorizo',            7000, 4, 0)
-    insProd.run(20, 'Caldo de Costilla',  8000, 4, 0)
+    insProd.run(17, 'Patacones', 5000, 4, 0)
+    insProd.run(18, 'Empanadas (3 und)', 6000, 4, 0)
+    insProd.run(19, 'Chorizo', 7000, 4, 0)
+    insProd.run(20, 'Caldo de Costilla', 8000, 4, 0)
 
     // ── Stock inicial para bebidas ─────────────────────────────────────────
     const insStock = db.prepare(`
       INSERT OR IGNORE INTO stock (producto_id, cantidad_actual, alerta_minimo, unidad)
       VALUES (?, ?, ?, 'unidad')
     `)
-    insStock.run(7,  24, 5)   // Gaseosa
-    insStock.run(8,  30, 5)   // Agua Cristal
-    insStock.run(9,   6, 3)   // Cerveza
-    insStock.run(10,  8, 4)   // Jugo Natural
-    insStock.run(11,  5, 3)   // Limonada de Coco
-    insStock.run(12,  2, 3)   // Pony Malta  ← stock bajo al arrancar (demo)
+    insStock.run(7, 24, 5)   // Gaseosa
+    insStock.run(8, 30, 5)   // Agua Cristal
+    insStock.run(9, 6, 3)   // Cerveza
+    insStock.run(10, 8, 4)   // Jugo Natural
+    insStock.run(11, 5, 3)   // Limonada de Coco
+    insStock.run(12, 2, 3)   // Pony Malta  ← stock bajo al arrancar (demo)
 
     // ── Configuración ─────────────────────────────────────────────────────
     const insConfig = db.prepare(
       'INSERT OR IGNORE INTO configuracion (clave, valor) VALUES (?, ?)'
     )
-    insConfig.run('nombre_negocio',   'Mi Restaurante')
-    insConfig.run('nit',              '000000000-0')
-    insConfig.run('direccion',        'Dirección del negocio')
-    insConfig.run('telefono',         '300 000 0000')
-    insConfig.run('ciudad',           'Colombia')
-    insConfig.run('moneda',           'COP')
+    insConfig.run('nombre_negocio', 'Mi Restaurante')
+    insConfig.run('nit', '000000000-0')
+    insConfig.run('direccion', 'Dirección del negocio')
+    insConfig.run('telefono', '300 000 0000')
+    insConfig.run('ciudad', 'Colombia')
+    insConfig.run('moneda', 'COP')
     insConfig.run('impresora_puerto', '')
-    insConfig.run('impresora_tipo',   'usb')
-    insConfig.run('mensaje_recibo',   '¡Gracias por su visita!')
+    insConfig.run('impresora_tipo', 'usb')
+    insConfig.run('mensaje_recibo', '¡Gracias por su visita!')
 
     db.prepare('INSERT INTO _migraciones (nombre) VALUES (?)').run('001_schema_base')
     console.log('[DB] ✅ Migración 001_schema_base aplicada correctamente.')

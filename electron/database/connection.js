@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path')
 const { app } = require('electron')
 
@@ -17,6 +18,13 @@ function initializeDatabase() {
   const dbPath = app.isPackaged
     ? path.join(app.getPath('userData'), 'pos-restaurante.db')
     : path.join(__dirname, '../../pos-restaurante.dev.db')
+
+  if (app.isPackaged) {
+    const dbDir = path.dirname(dbPath);
+    if (!fs.existsSync(dbDir)) {
+      fs.mkdirSync(dbDir, { recursive: true });
+    }
+  }
 
   db = new Database(dbPath, {
     // verbose: (msg) => console.log('[SQL]', msg),

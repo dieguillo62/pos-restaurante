@@ -1,7 +1,8 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const path = require('path')
 
-const IS_DEV = process.argv.includes('--dev')
+const IS_DEV = !app.isPackaged;
+
 
 let mainWindow = null
 
@@ -17,7 +18,7 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: false,
+      sandbox: true,
     },
   })
 
@@ -27,7 +28,7 @@ function createWindow() {
     mainWindow.loadURL('http://localhost:5173')
     mainWindow.webContents.openDevTools({ mode: 'detach' })
   } else {
-    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'))
+    mainWindow.loadFile(path.join(__dirname, 'index.html'))
   }
 
   mainWindow.on('closed', () => {
@@ -70,7 +71,7 @@ app.on('before-quit', () => {
   try {
     const { closeDatabase } = require('./database/connection')
     closeDatabase()
-  } catch (_) {}
+  } catch (_) { }
 })
 
 app.on('web-contents-created', (_, contents) => {

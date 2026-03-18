@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "concurrently -k -n VITE,ELECTRON -c cyan,yellow \"vite\" \"wait-on http://localhost:5173 && electron . --dev\"",
     "build:react": "vite build",
+    "rebuild:sqlite": "electron-rebuild -f -w better-sqlite3",
     "build": "npm run build:react && electron-builder",
-    "rebuild:sqlite": "electron-rebuild -f -w better-sqlite3 --module-dir . --version 31.0.0",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -32,7 +32,8 @@
     "copyright": "Copyright © 2024",
     "files": [
       "dist/**/*",
-      "electron/**/*"
+      "electron/**/*",
+      "package.json"
     ],
     "directories": {
       "output": "release"
@@ -53,6 +54,9 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
     },
-    "asar": true
+    "asar": true,
+    "asarUnpack": [
+      "**/node_modules/better-sqlite3/**/*"
+    ]
   }
 }

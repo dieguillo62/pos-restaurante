@@ -118,7 +118,7 @@ function _registrarVentas() {
     const { items, metodo_pago, total, sesion_id } = data
 
     if (!items?.length) throw new Error('La venta debe tener al menos un producto.')
-    if (!sesion_id)     throw new Error('No hay sesión de caja activa.')
+    if (!sesion_id) throw new Error('No hay sesión de caja activa.')
 
     const crearVenta = db.transaction(() => {
       const resVenta = db.prepare(`
@@ -280,11 +280,11 @@ function _registrarCaja() {
     `).run(montoCierre, sesionId)
 
     return {
-      sesion_id:      sesionId,
+      sesion_id: sesionId,
       monto_apertura: sesion.monto_apertura,
-      total_ventas:   totalVentas,
-      total_egresos:  totalEgresos,
-      monto_cierre:   montoCierre,
+      total_ventas: totalVentas,
+      total_egresos: totalEgresos,
+      monto_cierre: montoCierre,
     }
   })
 
@@ -293,7 +293,7 @@ function _registrarCaja() {
     const { sesion_id, monto, descripcion } = data
 
     if (!descripcion?.trim()) throw new Error('La descripción del egreso es obligatoria.')
-    if (monto <= 0)           throw new Error('El monto del egreso debe ser mayor a 0.')
+    if (monto <= 0) throw new Error('El monto del egreso debe ser mayor a 0.')
 
     const res = db.prepare(`
       INSERT INTO movimientos_caja (sesion_id, tipo, monto, descripcion)
@@ -388,7 +388,7 @@ function _registrarStock() {
 
 function _registrarReportes() {
   ipcMain.handle('reportes:resumenDiario', (_, fecha) => {
-    const db  = getDatabase()
+    const db = getDatabase()
     const dia = fecha ?? fechaHoy()
 
     return db.prepare(`
@@ -426,7 +426,7 @@ function _registrarReportes() {
   })
 
   ipcMain.handle('reportes:horasPico', (_, fecha) => {
-    const db  = getDatabase()
+    const db = getDatabase()
     const dia = fecha ?? fechaHoy()
 
     return db.prepare(`
@@ -443,9 +443,9 @@ function _registrarReportes() {
   })
 
   ipcMain.handle('reportes:resumenMensual', (_, anio, mes) => {
-    const db     = getDatabase()
-    const anioF  = anio ?? new Date().getFullYear()
-    const mesF   = mes  ?? (new Date().getMonth() + 1)
+    const db = getDatabase()
+    const anioF = anio ?? new Date().getFullYear()
+    const mesF = mes ?? (new Date().getMonth() + 1)
     const prefijo = `${anioF}-${String(mesF).padStart(2, '0')}`
 
     return db.prepare(`
@@ -466,7 +466,7 @@ function _registrarReportes() {
 
 function _registrarConfig() {
   ipcMain.handle('config:obtener', (_, clave) => {
-    const db  = getDatabase()
+    const db = getDatabase()
     const row = db.prepare('SELECT valor FROM configuracion WHERE clave = ?').get(clave)
     return row?.valor ?? null
   })
@@ -480,7 +480,7 @@ function _registrarConfig() {
   })
 
   ipcMain.handle('config:obtenerTodos', () => {
-    const db   = getDatabase()
+    const db = getDatabase()
     const rows = db.prepare('SELECT * FROM configuracion').all()
     return rows.reduce((acc, row) => ({ ...acc, [row.clave]: row.valor }), {})
   })
@@ -510,7 +510,7 @@ function _registrarPrint() {
 
     return {
       success: true,
-      data:    { venta, items, config },
+      data: { venta, items, config },
       mensaje: 'Impresión térmica pendiente — se integra en Parte 3',
     }
   })
