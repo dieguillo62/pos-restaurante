@@ -1,0 +1,228 @@
+/* ═══════════════════════════════════════════════════════════════════
+   INVENTARIO
+   ═══════════════════════════════════════════════════════════════════ */
+
+.inventario-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 100%;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.inv-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.inv-titulo    { font-size: 20px; font-weight: 800; }
+.inv-subtitulo { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+.btn-refresh {
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .12s;
+  font-family: inherit;
+  flex-shrink: 0;
+}
+
+.btn-refresh:hover { background: var(--bg-input); color: var(--text-primary); }
+
+/* ── Alertas ───────────────────────────────────────────────────────── */
+.alerta {
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.alerta-roja    { background: rgba(239,68,68,.12);  border: 1px solid rgba(239,68,68,.25);  color: var(--danger);  }
+.alerta-amarilla { background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.25); color: var(--warning); }
+
+/* ── Layout ────────────────────────────────────────────────────────── */
+.inv-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 14px;
+  flex: 1;
+  min-height: 0;
+}
+
+@media (max-width: 900px) { .inv-layout { grid-template-columns: 1fr; } }
+
+.inv-tabla-wrapper {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: auto;
+}
+
+.inv-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 200px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 20px;
+}
+
+.inv-empty span { font-size: 40px; opacity: .4; }
+.inv-empty p    { font-size: 14px; font-weight: 600; }
+.inv-empty small { font-size: 11px; }
+
+/* ── Tabla ─────────────────────────────────────────────────────────── */
+.inv-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.inv-tabla thead tr {
+  background: var(--bg-input);
+  border-bottom: 1px solid var(--border);
+}
+
+.inv-tabla th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.inv-fila {
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background .1s;
+}
+
+.inv-fila:last-child { border-bottom: none; }
+.inv-fila:hover      { background: var(--bg-input); }
+.inv-fila.selected   { background: var(--accent-light); }
+
+.inv-fila td {
+  padding: 12px 16px;
+  vertical-align: middle;
+}
+
+.inv-nombre { font-weight: 600; color: var(--text-primary); }
+
+.stock-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.stock-badge.ok     { background: rgba(34,197,94,.12);  color: var(--success); }
+.stock-badge.bajo   { background: rgba(245,158,11,.12); color: var(--warning); }
+.stock-badge.agotado { background: rgba(239,68,68,.12); color: var(--danger);  }
+
+.inv-alerta-min  { color: var(--text-muted); text-align: center; }
+
+.estado-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.estado-dot.verde   { background: var(--success); box-shadow: 0 0 4px var(--success); }
+.estado-dot.amarillo { background: var(--warning); box-shadow: 0 0 4px var(--warning); }
+.estado-dot.rojo    { background: var(--danger);  box-shadow: 0 0 4px var(--danger);  }
+
+.estado-texto { font-size: 12px; vertical-align: middle; }
+
+.btn-ajustar {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .1s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.btn-ajustar:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+
+/* ── Historial ─────────────────────────────────────────────────────── */
+.inv-historial {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+.inv-historial-titulo {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.inv-historial-vacio {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 20px;
+}
+
+.historial-lista { display: flex; flex-direction: column; gap: 4px; }
+
+.historial-row {
+  display: grid;
+  grid-template-columns: 20px 1fr auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  transition: background .1s;
+}
+
+.historial-row:hover { background: var(--bg-input); }
+.historial-row:last-child { border-bottom: none; }
+
+.hist-tipo-icon { font-size: 14px; }
+.hist-info  { display: flex; flex-direction: column; min-width: 0; }
+.hist-tipo  { font-weight: 600; color: var(--text-primary); font-size: 11px; }
+.hist-nota  { font-size: 10px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist-fecha { font-size: 10px; color: var(--text-muted); white-space: nowrap; text-align: right; }
+
+.hist-cantidad       { font-size: 13px; font-weight: 800; white-space: nowrap; }
+.hist-cantidad.pos   { color: var(--success); }
+.hist-cantidad.neg   { color: var(--danger);  }
+
+/* ── Reutilizados de caja.css (no duplicar, importar caja.css también) ─ */
+/* modal-overlay, modal-card, modal-header, modal-title, modal-close   */
+/* form-label, form-input, cierre-acciones, btn-cancelar, btn-confirmar-cierre */
