@@ -13,6 +13,15 @@ Se realiza el cierre de caja y, si se quiere ingresar otro monto sin cerrar la c
 
 Posible solución: Siempre que se cierre la caja y se realice el deslogueo, se cierre la aplicación sí o sí.
 
----
+- en el login al momento de poner los numeros en pantalla y si el usuario se equiboca queda la imagen de los circulos en rojo y no se borran cuando el usuario preciona borrar, proboca una confucion al momneot de ingresar 
+
+- En el logout, siempre que se cierre la caja y se realice el logout, tiene que pasar lo siguiente en el orden de:
+
+ 1) Se cierre la caja.
+
+ 2) Se cierra sesión: "logoutautomático".
+
+ 3) La aplicación se cierra.
+
 
 ## Puede esperar 

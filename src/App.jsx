@@ -1,81 +1,95 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import POSScreen from './modules/pos/POSScreen'
-import CajaScreen from './modules/caja/CajaScreen'
+import { UserProvider, useUser } from './context/UserContext'
+import LoginScreen      from './modules/auth/LoginScreen'
+import POSScreen        from './modules/pos/POSScreen'
+import CajaScreen       from './modules/caja/CajaScreen'
 import InventarioScreen from './modules/inventario/InventarioScreen'
-import ReportesScreen from './modules/reportes/ReportesScreen'
-import ConfigScreen from './modules/config/ConfigScreen'
+import ReportesScreen   from './modules/reportes/ReportesScreen'
+import ConfigScreen     from './modules/config/ConfigScreen'
 import './index.css'
 
+// ── Envuelve toda la app en UserProvider ─────────────────────────────────────
+export default function App() {
+  return (
+    <UserProvider>
+      <AppContent />
+    </UserProvider>
+  )
+}
+
+// ── Contenido principal (accede al contexto) ──────────────────────────────────
 const VIEWS = {
-  POS: 'pos',
-  CAJA: 'caja',
+  POS:        'pos',
+  CAJA:       'caja',
   INVENTARIO: 'inventario',
-  REPORTES: 'reportes',
-  CONFIG: 'configuracion',
+  REPORTES:   'reportes',
+  CONFIG:     'configuracion',
 }
 
 const NAV = [
-  { id: VIEWS.POS, label: 'Ventas', icon: '🛒' },
-  { id: VIEWS.CAJA, label: 'Caja', icon: '💰' },
+  { id: VIEWS.POS,        label: 'Ventas',     icon: '🛒' },
+  { id: VIEWS.CAJA,       label: 'Caja',       icon: '💰' },
   { id: VIEWS.INVENTARIO, label: 'Inventario', icon: '📦' },
-  { id: VIEWS.REPORTES, label: 'Reportes', icon: '📊' },
-  { id: VIEWS.CONFIG, label: 'Config', icon: '⚙️' },
+  { id: VIEWS.REPORTES,   label: 'Reportes',   icon: '📊' },
+  { id: VIEWS.CONFIG,     label: 'Config',     icon: '⚙️'  },
 ]
 
-export default function App() {
-  const [vistaActual, setVistaActual] = useState(VIEWS.POS)
-  const [cajaActiva, setCajaActiva] = useState(null)
+function AppContent() {
+  const { user, logout, cerrarAppSeguro } = useUser()
+
+  const [vistaActual,   setVistaActual]   = useState(VIEWS.POS)
+  const [cajaActiva,    setCajaActiva]    = useState(null)
   const [nombreNegocio, setNombreNegocio] = useState('POS Restaurante')
-  const [iniciado, setIniciado] = useState(false)
+  const [temaOscuro,    setTemaOscuro]    = useState(false)
+  const [cerrando,      setCerrando]      = useState(false)
 
-  // ── Tema: SIEMPRE inicia en claro ────────────────────────────────
-  const [temaOscuro, setTemaOscuro] = useState(false)
-
+  // ── Tema ──────────────────────────────────────────────────────────
   useEffect(() => {
-    const root = document.documentElement
-    if (temaOscuro) {
-      root.setAttribute('data-theme', 'dark')
-    } else {
-      root.removeAttribute('data-theme')
-    }
+    document.documentElement[temaOscuro ? 'setAttribute' : 'removeAttribute']('data-theme', 'dark')
   }, [temaOscuro])
 
-  // ── Carga inicial ────────────────────────────────────────────────
+  // ── Cargar estado inicial al autenticarse ─────────────────────────
   useEffect(() => {
+    if (!user) return
     async function init() {
       try {
         const [caja, nombre] = await Promise.all([
           window.electronAPI.caja.obtenerActiva(),
           window.electronAPI.config.obtener('nombre_negocio'),
         ])
-        if (caja) setCajaActiva(caja)
+        if (caja)   setCajaActiva(caja)
         if (nombre) setNombreNegocio(nombre)
       } catch {
-        console.warn('[App] Electron no disponible — modo demo')
-      } finally {
-        setIniciado(true)
+        console.warn('[App] Electron no disponible')
       }
     }
     init()
-  }, [])
+  }, [user])
 
-  const handleCajaChange = useCallback((nuevaCaja) => {
-    setCajaActiva(nuevaCaja)
-  }, [])
+  const handleCajaChange = useCallback((nueva) => setCajaActiva(nueva), [])
 
-  if (!iniciado) {
-    return (
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        height: '100vh', background: 'var(--bg-app)',
-      }}>
-        <div style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
-          <div style={{ fontSize: 40, marginBottom: 12 }}>🍽️</div>
-          <div style={{ fontSize: 13, fontWeight: 700 }}>Iniciando POS...</div>
-        </div>
-      </div>
-    )
+  // ── Logout simple ─────────────────────────────────────────────────
+  async function handleLogout() {
+    await logout()
+    setCajaActiva(null)
+    setVistaActual(VIEWS.POS)
   }
+
+  // ── Cierre seguro de app ──────────────────────────────────────────
+  async function handleCerrarApp() {
+    if (cerrando) return
+    const confirmar = window.confirm(
+      '¿Cerrar la aplicación?\n\nSe cerrará la caja activa si la hay.'
+    )
+    if (!confirmar) return
+    setCerrando(true)
+    await cerrarAppSeguro(cajaActiva, async (sesionId) => {
+      if (window.electronAPI) await window.electronAPI.caja.cerrar(sesionId)
+    })
+  }
+
+  // ── Sin usuario → pantalla de login ──────────────────────────────
+  if (!user) return <LoginScreen />
 
   return (
     <div className="app-container">
@@ -97,10 +111,8 @@ export default function App() {
             >
               {id === VIEWS.CAJA && !cajaActiva && (
                 <span style={{
-                  position: 'absolute', top: 6, right: 6,
-                  width: 8, height: 8,
-                  background: 'var(--danger)',
-                  borderRadius: '50%',
+                  position:'absolute',top:6,right:6,
+                  width:8,height:8,background:'var(--danger)',borderRadius:'50%',
                 }} />
               )}
               <span className="nav-icon">{icon}</span>
@@ -109,66 +121,82 @@ export default function App() {
           ))}
         </div>
 
+        {/* Info usuario + logout */}
+        <div className="sidebar-user">
+          <span className="sidebar-user-icon">
+            {user.role === 'admin' ? '👑' : '👤'}
+          </span>
+          <span className="sidebar-user-name">{user.username}</span>
+          <button
+            className="sidebar-logout-btn"
+            onClick={handleLogout}
+            title="Cerrar sesión"
+          >
+            ↩
+          </button>
+        </div>
+
         <div className="sidebar-caja-status">
           <span className={`caja-dot ${cajaActiva ? 'abierta' : 'cerrada'}`} />
-          <span className="caja-texto">
-            {cajaActiva ? 'Abierta' : 'Cerrada'}
-          </span>
+          <span className="caja-texto">{cajaActiva ? 'Abierta' : 'Cerrada'}</span>
         </div>
       </nav>
 
       {/* ── Main ──────────────────────────────────────────────────── */}
       <div className="main-wrapper">
         <header className="top-bar">
-
-          {/* Nombre del negocio */}
           <h1 className="top-bar-title">{nombreNegocio}</h1>
 
-          {/* Estado de caja */}
-          <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+          <div style={{ flex:1, display:'flex', justifyContent:'center' }}>
             {cajaActiva && (
               <span style={{
-                fontSize: 11, color: 'var(--success)', fontWeight: 800,
-                background: 'rgba(21,128,61,0.1)',
-                padding: '4px 12px', borderRadius: 20,
-                border: '1.5px solid var(--success)',
-                whiteSpace: 'nowrap',
+                fontSize:11,color:'var(--success)',fontWeight:800,
+                background:'rgba(21,128,61,.1)',padding:'4px 12px',
+                borderRadius:20,border:'1.5px solid var(--success)',whiteSpace:'nowrap',
               }}>
                 🟢 Caja abierta desde{' '}
-                {new Date(cajaActiva.abierta_at).toLocaleTimeString('es-CO', {
-                  hour: '2-digit', minute: '2-digit',
-                })}
+                {new Date(cajaActiva.abierta_at).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})}
               </span>
             )}
           </div>
 
-          {/* Fecha + botón de tema */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+          <div style={{ display:'flex',alignItems:'center',gap:10,flexShrink:0 }}>
             <span className="top-bar-fecha">
-              {new Date().toLocaleDateString('es-CO', {
-                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-              })}
+              {new Date().toLocaleDateString('es-CO',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}
             </span>
 
             <button
               className="theme-toggle-btn"
-              onClick={() => setTemaOscuro(prev => !prev)}
-              title={temaOscuro ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+              onClick={() => setTemaOscuro(p => !p)}
             >
-              <span style={{ fontSize: 16 }}>
-                {temaOscuro ? '☀️' : '🌙'}
-              </span>
+              <span style={{ fontSize:16 }}>{temaOscuro ? '☀️' : '🌙'}</span>
               {temaOscuro ? 'Modo claro' : 'Modo oscuro'}
+            </button>
+
+            {/* ── Botón cerrar app (flujo seguro) ─────────────────── */}
+            <button
+              onClick={handleCerrarApp}
+              disabled={cerrando}
+              title="Cerrar aplicación"
+              style={{
+                padding:'8px 14px',border:'2px solid var(--border)',
+                borderRadius:24,background:'var(--bg-input)',
+                color:'var(--text-secondary)',fontSize:12,fontWeight:800,
+                cursor:'pointer',fontFamily:'inherit',transition:'all .15s',
+                opacity: cerrando ? .5 : 1,
+              }}
+            >
+              {cerrando ? '⏳' : '⏻'} Salir
             </button>
           </div>
         </header>
 
         <main className="main-content">
-          {vistaActual === VIEWS.POS && <POSScreen cajaActiva={cajaActiva} />}
-          {vistaActual === VIEWS.CAJA && <CajaScreen cajaActiva={cajaActiva} onCajaChange={handleCajaChange} />}
+          {vistaActual === VIEWS.POS        && <POSScreen        cajaActiva={cajaActiva} />}
+          {vistaActual === VIEWS.CAJA       && <CajaScreen       cajaActiva={cajaActiva} onCajaChange={handleCajaChange} />}
           {vistaActual === VIEWS.INVENTARIO && <InventarioScreen />}
-          {vistaActual === VIEWS.REPORTES && <ReportesScreen />}
-          {vistaActual === VIEWS.CONFIG && <ConfigScreen />}
+          {vistaActual === VIEWS.REPORTES   && <ReportesScreen />}
+          {vistaActual === VIEWS.CONFIG     && <ConfigScreen />}
         </main>
       </div>
     </div>

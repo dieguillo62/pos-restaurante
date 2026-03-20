@@ -1,0 +1,52 @@
+/* ── Añadir al final de index.css existente ──────────────────────── */
+
+/* ── Info de usuario en sidebar ──────────────────────────────────── */
+.sidebar-user {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 8px;
+  width: 100%;
+  border-top: 2px solid var(--border);
+  border-bottom: 2px solid var(--border);
+  margin: 4px 0;
+}
+
+.sidebar-user-icon { font-size: 20px; line-height: 1; }
+
+.sidebar-user-name {
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 70px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  transition: all .12s;
+  font-family: inherit;
+  margin-top: 2px;
+}
+
+.sidebar-logout-btn:hover {
+  background: rgba(185, 28, 28, .1);
+  border-color: var(--danger);
+  color: var(--danger);
+}

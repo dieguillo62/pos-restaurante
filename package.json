@@ -12,6 +12,7 @@
     "clean:all": "powershell -Command \"Remove-Item -Recurse -Force dist, release, $env:APPDATA\\pos-restaurante, $env:LOCALAPPDATA\\Programs\\pos-restaurante -ErrorAction SilentlyContinue\""
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "better-sqlite3": "^11.10.0",
     "electron-pos-printer": "^1.3.8",
     "react": "^18.3.1",
