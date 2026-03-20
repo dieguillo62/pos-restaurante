@@ -7,8 +7,9 @@
     "dev": "concurrently -k -n VITE,ELECTRON -c cyan,yellow \"vite\" \"wait-on http://localhost:5173 && electron . --dev\"",
     "build:react": "vite build",
     "rebuild:sqlite": "electron-rebuild -f -w better-sqlite3",
-    "build": "npm run build:react && electron-builder",
-    "preview": "vite preview"
+    "build": "npm run rebuild:sqlite && npm run build:react && electron-builder",
+    "preview": "vite preview",
+    "clean:all": "powershell -Command \"Remove-Item -Recurse -Force dist, release, $env:APPDATA\\pos-restaurante, $env:LOCALAPPDATA\\Programs\\pos-restaurante -ErrorAction SilentlyContinue\""
   },
   "dependencies": {
     "better-sqlite3": "^11.10.0",
@@ -40,7 +41,8 @@
     },
     "win": {
       "target": "nsis",
-      "icon": "resources/icon.ico"
+      "icon": "resources/icon.ico",
+      "requestedExecutionLevel": "asInvoker"
     },
     "mac": {
       "target": "dmg",
@@ -52,11 +54,15 @@
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "POS Restaurante"
     },
     "asar": true,
     "asarUnpack": [
-      "**/node_modules/better-sqlite3/**/*"
+      "**/node_modules/better-sqlite3/**/*",
+      "**/node_modules/bindings/**/*"
     ]
   }
 }

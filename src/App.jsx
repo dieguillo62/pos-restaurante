@@ -1,32 +1,32 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import POSScreen        from './modules/pos/POSScreen'
-import CajaScreen       from './modules/caja/CajaScreen'
+import POSScreen from './modules/pos/POSScreen'
+import CajaScreen from './modules/caja/CajaScreen'
 import InventarioScreen from './modules/inventario/InventarioScreen'
-import ReportesScreen   from './modules/reportes/ReportesScreen'
-import ConfigScreen     from './modules/config/ConfigScreen'
+import ReportesScreen from './modules/reportes/ReportesScreen'
+import ConfigScreen from './modules/config/ConfigScreen'
 import './index.css'
 
 const VIEWS = {
-  POS:        'pos',
-  CAJA:       'caja',
+  POS: 'pos',
+  CAJA: 'caja',
   INVENTARIO: 'inventario',
-  REPORTES:   'reportes',
-  CONFIG:     'configuracion',
+  REPORTES: 'reportes',
+  CONFIG: 'configuracion',
 }
 
 const NAV = [
-  { id: VIEWS.POS,        label: 'Ventas',     icon: '🛒' },
-  { id: VIEWS.CAJA,       label: 'Caja',       icon: '💰' },
+  { id: VIEWS.POS, label: 'Ventas', icon: '🛒' },
+  { id: VIEWS.CAJA, label: 'Caja', icon: '💰' },
   { id: VIEWS.INVENTARIO, label: 'Inventario', icon: '📦' },
-  { id: VIEWS.REPORTES,   label: 'Reportes',   icon: '📊' },
-  { id: VIEWS.CONFIG,     label: 'Config',     icon: '⚙️'  },
+  { id: VIEWS.REPORTES, label: 'Reportes', icon: '📊' },
+  { id: VIEWS.CONFIG, label: 'Config', icon: '⚙️' },
 ]
 
 export default function App() {
-  const [vistaActual,   setVistaActual]   = useState(VIEWS.POS)
-  const [cajaActiva,    setCajaActiva]    = useState(null)
+  const [vistaActual, setVistaActual] = useState(VIEWS.POS)
+  const [cajaActiva, setCajaActiva] = useState(null)
   const [nombreNegocio, setNombreNegocio] = useState('POS Restaurante')
-  const [iniciado,      setIniciado]      = useState(false)
+  const [iniciado, setIniciado] = useState(false)
 
   // ── Tema: SIEMPRE inicia en claro ────────────────────────────────
   const [temaOscuro, setTemaOscuro] = useState(false)
@@ -48,7 +48,7 @@ export default function App() {
           window.electronAPI.caja.obtenerActiva(),
           window.electronAPI.config.obtener('nombre_negocio'),
         ])
-        if (caja)   setCajaActiva(caja)
+        if (caja) setCajaActiva(caja)
         if (nombre) setNombreNegocio(nombre)
       } catch {
         console.warn('[App] Electron no disponible — modo demo')
@@ -164,11 +164,11 @@ export default function App() {
         </header>
 
         <main className="main-content">
-          {vistaActual === VIEWS.POS        && <POSScreen cajaActiva={cajaActiva} />}
-          {vistaActual === VIEWS.CAJA       && <CajaScreen cajaActiva={cajaActiva} onCajaChange={handleCajaChange} />}
+          {vistaActual === VIEWS.POS && <POSScreen cajaActiva={cajaActiva} />}
+          {vistaActual === VIEWS.CAJA && <CajaScreen cajaActiva={cajaActiva} onCajaChange={handleCajaChange} />}
           {vistaActual === VIEWS.INVENTARIO && <InventarioScreen />}
-          {vistaActual === VIEWS.REPORTES   && <ReportesScreen />}
-          {vistaActual === VIEWS.CONFIG     && <ConfigScreen />}
+          {vistaActual === VIEWS.REPORTES && <ReportesScreen />}
+          {vistaActual === VIEWS.CONFIG && <ConfigScreen />}
         </main>
       </div>
     </div>

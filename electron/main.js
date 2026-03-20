@@ -2,8 +2,6 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const path = require('path')
 
 const IS_DEV = !app.isPackaged;
-
-
 let mainWindow = null
 
 function createWindow() {
@@ -28,14 +26,19 @@ function createWindow() {
     mainWindow.loadURL('http://localhost:5173')
     mainWindow.webContents.openDevTools({ mode: 'detach' })
   } else {
-    mainWindow.loadFile(path.join(__dirname, 'index.html'))
+    // RUTA SEGURA: Primero intentamos en dist (Vite), luego en raíz
+    const pathIndex = path.join(__dirname, '../dist/index.html');
+    mainWindow.loadFile(pathIndex).catch(() => {
+      mainWindow.loadFile(path.join(__dirname, 'index.html'));
+    });
   }
 
   mainWindow.on('closed', () => {
     mainWindow = null
   })
-}
+} // <--- AQUÍ FALTABA ESTA LLAVE PARA CERRAR LA FUNCIÓN
 
+// --- ARRANQUE DE LA APP ---
 app.whenReady().then(() => {
   try {
     const { initializeDatabase } = require('./database/connection')
@@ -43,7 +46,7 @@ app.whenReady().then(() => {
   } catch (err) {
     dialog.showErrorBox(
       'Error al iniciar la base de datos',
-      `No se pudo inicializar SQLite.\n\n${err.message}\n\nAsegúrate de haber ejecutado:\nnpm run rebuild:sqlite`
+      `No se pudo inicializar SQLite.\n\n${err.message}`
     )
     app.quit()
     return
@@ -61,8 +64,10 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
-    const { closeDatabase } = require('./database/connection')
-    closeDatabase()
+    try {
+      const { closeDatabase } = require('./database/connection')
+      closeDatabase()
+    } catch (_) { }
     app.quit()
   }
 })
@@ -76,10 +81,12 @@ app.on('before-quit', () => {
 
 app.on('web-contents-created', (_, contents) => {
   contents.on('will-navigate', (event, url) => {
-    const allowedOrigins = ['http://localhost:5173']
-    const { origin } = new URL(url)
-    if (!allowedOrigins.includes(origin) && !url.startsWith('file://')) {
-      event.preventDefault()
+    if (IS_DEV) {
+      const allowedOrigins = ['http://localhost:5173']
+      const { origin } = new URL(url)
+      if (!allowedOrigins.includes(origin) && !url.startsWith('file://')) {
+        event.preventDefault()
+      }
     }
   })
 })
