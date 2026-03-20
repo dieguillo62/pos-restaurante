@@ -1,0 +1,18 @@
+# README-BUGS
+
+---
+
+# Bugs por importancia SOLUCIONAR 
+
+---
+
+## Más importantes 
+
+- Al momento de cerrar la caja, no deja escribir un nuevo monto de apertura, pero esto solo pasa cuando la app no se cierra; de momento funciona cuando:
+Se realiza el cierre de caja y, si se quiere ingresar otro monto sin cerrar la caja, no puedes escribirlo. Solución temporal: Después de realizar el cierre de caja, se tiene que cerrar la app para que, cuando se quiera abrir la caja, deje escribir el monto que se desea.
+
+Posible solución: Siempre que se cierre la caja y se realice el deslogueo, se cierre la aplicación sí o sí.
+
+---
+
+## Puede esperar 

@@ -1,28 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { formatCOP } from './ProductGrid'
+import TicketPreview from './TicketPreview'
 
 const METODOS = [
-  {
-    id:    'efectivo',
-    label: 'Efectivo',
-    icon:  '💵',
-    color: '#22c55e',
-    desc:  'Pago en efectivo',
-  },
-  {
-    id:    'nequi',
-    label: 'Nequi',
-    icon:  '📱',
-    color: '#a855f7',
-    desc:  'Transferencia Nequi',
-  },
-  {
-    id:    'daviplata',
-    label: 'DaviPlata',
-    icon:  '🔴',
-    color: '#ef4444',
-    desc:  'Transferencia DaviPlata',
-  },
+  { id: 'efectivo',   label: 'Efectivo',   icon: '💵', color: '#22c55e', desc: 'Pago en efectivo'       },
+  { id: 'nequi',      label: 'Nequi',      icon: '📱', color: '#a855f7', desc: 'Transferencia Nequi'    },
+  { id: 'daviplata',  label: 'DaviPlata',  icon: '🔴', color: '#ef4444', desc: 'Transferencia DaviPlata'},
 ]
 
 export default function PaymentPanel({ total, carrito, cargando, onConfirmar, onCerrar }) {
@@ -30,14 +13,17 @@ export default function PaymentPanel({ total, carrito, cargando, onConfirmar, on
   const [efectivoIngresado,  setEfectivoIngresado]  = useState('')
   const [confirmando,        setConfirmando]         = useState(false)
 
-  // Cerrar con Escape
+  // ── Datos del ticket post-venta ──────────────────────────────────
+  const [ticketData,   setTicketData]   = useState(null)   // { venta, items, config }
+  const [imprimiendo,  setImprimiendo]  = useState(false)
+
   useEffect(() => {
     function handleKey(e) {
-      if (e.key === 'Escape' && !cargando) onCerrar()
+      if (e.key === 'Escape' && !cargando && !ticketData) onCerrar()
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [cargando, onCerrar])
+  }, [cargando, onCerrar, ticketData])
 
   const efectivoNum = parseFloat(efectivoIngresado) || 0
   const cambio      = metodoSeleccionado === 'efectivo' ? Math.max(0, efectivoNum - total) : 0
@@ -47,15 +33,43 @@ export default function PaymentPanel({ total, carrito, cargando, onConfirmar, on
   async function handleConfirmar() {
     if (!puedeCobrar || cargando) return
     setConfirmando(true)
-    await onConfirmar(metodoSeleccionado)
-    setConfirmando(false)
+    try {
+      const ventaCompleta = await onConfirmar(metodoSeleccionado)
+      // onConfirmar devuelve { venta, items } desde POSScreen
+      if (ventaCompleta) {
+        const config = window.electronAPI
+          ? await window.electronAPI.config.obtenerTodos()
+          : {}
+        setTicketData({ ...ventaCompleta, config })
+      }
+    } finally {
+      setConfirmando(false)
+    }
   }
 
-  // ── Teclado numérico táctil ──────────────────────────────────────────────
+  // ── Imprimir desde el preview ────────────────────────────────────
+  async function handleImprimir() {
+    if (!ticketData?.venta?.id || !window.electronAPI) return
+    setImprimiendo(true)
+    try {
+      const res = await window.electronAPI.print.recibo(ticketData.venta.id)
+      if (!res.success) alert(`⚠️ ${res.mensaje}`)
+    } finally {
+      setImprimiendo(false)
+    }
+  }
+
+  // ── Cerrar ticket y el modal ──────────────────────────────────────
+  function handleCerrarTicket() {
+    setTicketData(null)
+    onCerrar()
+  }
+
+  // ── Teclado numérico ─────────────────────────────────────────────
   function presionarTecla(valor) {
     setEfectivoIngresado(prev => {
-      if (valor === 'C') return ''
-      if (valor === '⌫') return prev.slice(0, -1)
+      if (valor === 'C')   return ''
+      if (valor === '⌫')  return prev.slice(0, -1)
       if (valor === '000') return prev === '' ? '' : prev + '000'
       return prev + valor
     })
@@ -63,17 +77,30 @@ export default function PaymentPanel({ total, carrito, cargando, onConfirmar, on
 
   const TECLAS = ['7','8','9','4','5','6','1','2','3','C','0','⌫','000']
 
+  // ── Mostrar ticket si ya se confirmó ────────────────────────────
+  if (ticketData) {
+    return (
+      <TicketPreview
+        venta={ticketData.venta}
+        items={ticketData.items}
+        config={ticketData.config}
+        onCerrar={handleCerrarTicket}
+        onImprimir={handleImprimir}
+        imprimiendo={imprimiendo}
+      />
+    )
+  }
+
   return (
-    <div className="payment-overlay" onClick={(e) => e.target === e.currentTarget && !cargando && onCerrar()}>
+    <div className="payment-overlay" onClick={e => e.target === e.currentTarget && !cargando && onCerrar()}>
       <div className="payment-panel">
 
-        {/* ── Header ────────────────────────────────────────────────── */}
         <div className="payment-header">
           <h2 className="payment-title">💳 Seleccionar pago</h2>
           <button className="payment-close" onClick={onCerrar} disabled={cargando}>✕</button>
         </div>
 
-        {/* ── Resumen del pedido ─────────────────────────────────────── */}
+        {/* Resumen */}
         <div className="payment-resumen">
           <div className="payment-items-list">
             {carrito.map(item => (
@@ -90,7 +117,7 @@ export default function PaymentPanel({ total, carrito, cargando, onConfirmar, on
           </div>
         </div>
 
-        {/* ── Métodos de pago ───────────────────────────────────────── */}
+        {/* Métodos */}
         <div className="payment-metodos">
           {METODOS.map(m => (
             <button
@@ -109,7 +136,7 @@ export default function PaymentPanel({ total, carrito, cargando, onConfirmar, on
           ))}
         </div>
 
-        {/* ── Panel de efectivo ──────────────────────────────────────── */}
+        {/* Panel efectivo */}
         {metodoSeleccionado === 'efectivo' && (
           <div className="efectivo-panel">
             <div className="efectivo-display">
@@ -126,7 +153,6 @@ export default function PaymentPanel({ total, carrito, cargando, onConfirmar, on
               </div>
             )}
 
-            {/* Teclado numérico */}
             <div className="numpad">
               {TECLAS.map(tecla => (
                 <button
@@ -139,7 +165,6 @@ export default function PaymentPanel({ total, carrito, cargando, onConfirmar, on
               ))}
             </div>
 
-            {/* Atajos de efectivo rápido */}
             <div className="efectivo-atajos">
               {[20000, 50000, 100000].map(val => (
                 <button
@@ -154,7 +179,6 @@ export default function PaymentPanel({ total, carrito, cargando, onConfirmar, on
           </div>
         )}
 
-        {/* ── Botón confirmar ───────────────────────────────────────── */}
         <button
           className={`confirmar-btn ${puedeCobrar ? 'listo' : ''}`}
           disabled={!puedeCobrar || cargando || confirmando}
